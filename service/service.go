@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/anagrams/domain"
 	"sort"
 )
@@ -9,9 +8,7 @@ import (
 func (serv *Service) SaveAnagrams(anagrams *domain.SliceAnagrams) {
 	for _, anagram := range anagrams.Anagrams {
 		value := anagram.String()
-		//fmt.Println(anagram.String())
 		sort.Sort(anagram)
-		//fmt.Println(anagram.String())
 		if _, ok := serv.Anagrams[anagram.String()]; ok {
 			serv.Anagrams[anagram.String()] = append(serv.Anagrams[anagram.String()], value)
 			continue
@@ -20,9 +17,17 @@ func (serv *Service) SaveAnagrams(anagrams *domain.SliceAnagrams) {
 	}
 }
 
-func (serv *Service) GetAnagrams(anaram *domain.GetAnagrams) *domain.SliceAnagrams {
-	for _, v := range serv.Anagrams {
-		fmt.Println(v)
+func (serv *Service) GetAnagrams(request *domain.GetAnagrams) *domain.SliceAnagrams {
+	sort.Sort(request.Anagram)
+
+	if _, ok := serv.Anagrams[request.Anagram.String()]; ok {
+		response := &domain.SliceAnagrams{}
+
+		for _, value := range serv.Anagrams[request.Anagram.String()] {
+			response.Anagrams = append(response.Anagrams, domain.New(value))
+		}
+
+		return response
 	}
 	return nil
 }

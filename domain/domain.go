@@ -2,7 +2,6 @@ package domain
 
 import (
 	"encoding/json"
-	"fmt"
 )
 //{ "anagrams":["baba", "aqwe", "кошка", "пёс"]}
 
@@ -18,18 +17,22 @@ type Anagram struct {
 	sliceRune []rune
 }
 
-func (a Anagram) UnmarshalJSON(b []byte) error {
+func New(r string)	Anagram {
+	a := Anagram{sliceRune:[]rune(r)}
+	return a
+}
+
+func (a *Anagram) UnmarshalJSON(b []byte) error {
 	tmp := ""
 	var err error
 	if err = json.Unmarshal(b, &tmp); err != nil {
 		return err
 	}
 	a.sliceRune =  []rune(tmp)
-	fmt.Println(a.sliceRune)
 	return nil
 }
 
-func (a Anagram) MarshalJSON() ([]byte, error) {
+func (a *Anagram) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(a.sliceRune))
 }
 
@@ -45,6 +48,6 @@ func (a Anagram) Less(i, j int) bool {
 	return a.sliceRune[i] < a.sliceRune[j]
 }
 
-func (a Anagram) String() string {
+func (a *Anagram) String() string {
 	return string(a.sliceRune)
 }
