@@ -3,7 +3,6 @@ package domain
 import (
 	"encoding/json"
 )
-//{ "anagrams":["baba", "aqwe", "кошка", "пёс"]}
 
 type SliceAnagrams struct {
 	Anagrams []Anagram `json:"anagrams"`
@@ -13,6 +12,7 @@ type GetAnagrams struct {
 	Anagram Anagram `json:"anagram"`
 }
 
+//Решил использовать руны, а не байты, ради совместимости с кириллицей
 type Anagram struct {
 	sliceRune []rune
 }
@@ -36,6 +36,11 @@ func (a *Anagram) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(a.sliceRune))
 }
 
+func (a *Anagram) String() string {
+	return string(a.sliceRune)
+}
+
+//Три функции ниже это имплементация интерфейса для sort.Sort()
 func (a Anagram) Len() int {
 	return len(a.sliceRune)
 }
@@ -46,8 +51,4 @@ func (a Anagram) Swap(i, j int) {
 
 func (a Anagram) Less(i, j int) bool {
 	return a.sliceRune[i] < a.sliceRune[j]
-}
-
-func (a *Anagram) String() string {
-	return string(a.sliceRune)
 }

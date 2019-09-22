@@ -1,23 +1,35 @@
 package service
 
 import (
-	"github.com/anagrams/domain"
+	"github.com/hurtuh/anagrams/domain"
 	"sort"
+	"sync"
 )
 
-func (serv *Service) SaveAnagrams(anagrams *domain.SliceAnagrams) {
+func (serv *Service) saveAnagrams(anagrams *domain.SliceAnagrams) {
+	var wg sync.WaitGroup
+	//Проходим по всем словам, что пришли в запросе
 	for _, anagram := range anagrams.Anagrams {
-		value := anagram.String()
-		sort.Sort(anagram)
-		if _, ok := serv.Anagrams[anagram.String()]; ok {
-			serv.Anagrams[anagram.String()] = append(serv.Anagrams[anagram.String()], value)
-			continue
-		}
-		serv.Anagrams[anagram.String()] = []string{value}
+		anagram := anagram
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			//Сохраняем первоначальное слово
+			value := anagram.String()
+			sort.Sort(anagram)
+			//Если мапа с данной аннаграмой уже существует, и если этого слова ещё нет, то сохраняем
+			if _, ok := serv.Anagrams[anagram.String()]; ok && !serv.checkDuplicate(value, anagram.String()) {
+				serv.Anagrams[anagram.String()] = append(serv.Anagrams[anagram.String()], value)
+
+			} else if !ok {
+				serv.Anagrams[anagram.String()] = []string{value}
+			}
+		}()
+		wg.Wait()
 	}
 }
 
-func (serv *Service) GetAnagrams(request *domain.GetAnagrams) *domain.SliceAnagrams {
+func (serv *Service) getAnagrams(request *domain.GetAnagrams) *domain.SliceAnagrams {
 	sort.Sort(request.Anagram)
 
 	if _, ok := serv.Anagrams[request.Anagram.String()]; ok {
@@ -30,4 +42,13 @@ func (serv *Service) GetAnagrams(request *domain.GetAnagrams) *domain.SliceAnagr
 		return response
 	}
 	return nil
+}
+
+func (serv *Service) checkDuplicate(request, key string) bool {
+	for _, v := range serv.Anagrams[key] {
+		if v == request {
+			return true
+		}
+	}
+	return false
 }

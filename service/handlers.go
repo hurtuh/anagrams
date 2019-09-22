@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"github.com/anagrams/domain"
+	"github.com/hurtuh/anagrams/domain"
 	"log"
 	"net/http"
 )
@@ -18,32 +18,22 @@ func (serv *Service) SetAnagrams(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&anagrams)
 	if err != nil {
 		log.Println(err)
-		_, _ = w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	serv.SaveAnagrams(&anagrams)
+	serv.saveAnagrams(&anagrams)
 }
 
 
 func (serv *Service) SearchAnagrams(w http.ResponseWriter, r *http.Request) {
-	requet := domain.GetAnagrams{}
-	decoder := json.NewDecoder(r.Body)
-
-	err := decoder.Decode(&requet)
-	if err != nil {
-		log.Println(err)
-		_, _ = w.Write([]byte(err.Error()))
-		return
-	}
-
-	res := serv.GetAnagrams(&requet)
+	requet := domain.GetAnagrams{Anagram: domain.New(r.FormValue("word"))}
+	res := serv.getAnagrams(&requet)
 	bb, err := json.Marshal(res)
 	if err != nil {
 		log.Println(err)
-		_, _ = w.Write([]byte(err.Error()))
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	_, _ = w.Write(bb)
 }

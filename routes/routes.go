@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/anagrams/service"
+	"github.com/hurtuh/anagrams/service"
 	"github.com/gorilla/mux"
 )
 
@@ -12,8 +12,8 @@ type Routers struct {
 func (rout *Routers) MakeHTTPHandlers() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	router.Methods("POST").Path("/set_anagrams").HandlerFunc(rout.Handlers.SetAnagrams)
-	router.Methods("GET").Path("/search_anagrams").HandlerFunc(rout.Handlers.SearchAnagrams)
+	router.Methods("POST").Path("/load").HandlerFunc(rout.Handlers.SetAnagrams)
+	router.Methods("GET").Path("/get").HandlerFunc(rout.Handlers.SearchAnagrams)
 
 	return router
 }

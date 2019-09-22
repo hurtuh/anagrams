@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/anagrams/routes"
-	"github.com/anagrams/service"
+	"github.com/hurtuh/anagrams/routes"
+	"github.com/hurtuh/anagrams/service"
 	"log"
 	"net/http"
 )
