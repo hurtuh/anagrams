@@ -3,35 +3,26 @@ package service
 import (
 	"github.com/hurtuh/anagrams/domain"
 	"sort"
-	"sync"
 )
 
 func (serv *Service) saveAnagrams(anagrams *domain.SliceAnagrams) {
-	var wg sync.WaitGroup
 
 	//Проходим по всем словам, что пришли в запросе
 	for _, anagram := range anagrams.Anagrams {
-		anagram := anagram
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		//Сохраняем первоначальное слово
+		value := anagram.String()
+		sort.Sort(anagram)
 
-			//Сохраняем первоначальное слово
-			value := anagram.String()
-			sort.Sort(anagram)
+		//Сохраняем после сортировки готовый ключ
+		key := anagram.String()
 
-			//Сохраняем после сортировки готовый ключ
-			key := anagram.String()
+		//Если мапа с данной аннаграмой уже существует, и если этого слова ещё нет, то сохраняем
+		if _, ok := serv.Anagrams[key]; ok && !serv.checkDuplicate(value, key) {
+			serv.Anagrams[key] = append(serv.Anagrams[key], value)
 
-			//Если мапа с данной аннаграмой уже существует, и если этого слова ещё нет, то сохраняем
-			if _, ok := serv.Anagrams[key]; ok && !serv.checkDuplicate(value, key) {
-				serv.Anagrams[key] = append(serv.Anagrams[key], value)
-
-			} else if !ok {
-				serv.Anagrams[key] = []string{value}
-			}
-		}()
-		wg.Wait()
+		} else if !ok {
+			serv.Anagrams[key] = []string{value}
+		}
 	}
 }
 
